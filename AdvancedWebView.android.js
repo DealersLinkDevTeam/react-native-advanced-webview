@@ -229,7 +229,12 @@ class WebView extends React.Component {
      * Use this to list URLs that WebView cannot handle, e.g. a PDF url.
      * @platform android
      */
-    urlPrefixesForDefaultIntent: PropTypes.arrayOf(PropTypes.string)
+    urlPrefixesForDefaultIntent: PropTypes.arrayOf(PropTypes.string),
+    /*
+     *Custom attribute used on Android only,
+     * Provides support for the browse button to enable upload files
+      */
+    enabledUploadAndroid: PropTypes.bool
   };
 
   static defaultProps = {
@@ -338,6 +343,7 @@ class WebView extends React.Component {
         mixedContentMode={this.props.mixedContentMode}
         saveFormDataDisabled={this.props.saveFormDataDisabled}
         urlPrefixesForDefaultIntent={this.props.urlPrefixesForDefaultIntent}
+        enabledUploadAndroid={this.props.enabledUploadAndroid}
         {...nativeConfig.props}
       />
     );
