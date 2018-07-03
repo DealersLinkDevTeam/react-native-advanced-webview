@@ -248,8 +248,8 @@ public class RNAdvancedWebviewModule extends ReactContextBaseJavaModule implemen
             }
         }
         Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-        contentSelectionIntent.setType("*/*");
+        // contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        contentSelectionIntent.setType("image/*");
         Intent[] intentArray;
         if (takePictureIntent != null) {
             intentArray = new Intent[]{takePictureIntent};
