@@ -1,31 +1,65 @@
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
  *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
  *
- * @format
+ *
  */
-
 'use strict';
 
-const EdgeInsetsPropType = require('EdgeInsetsPropType');
-const ActivityIndicator = require('ActivityIndicator');
-const React = require('React');
-const PropTypes = require('prop-types');
-const ReactNative = require('ReactNative');
-const StyleSheet = require('StyleSheet');
-const UIManager = require('UIManager');
-const View = require('View');
-const ViewPropTypes = require('ViewPropTypes');
-const WebViewShared = require('WebViewShared');
+// var EdgeInsetsPropType = require('EdgeInsetsPropType');
+// var ActivityIndicator = require('ActivityIndicator');
+// var React = require('React');
+import React, { Component } from 'react';
 
-const deprecatedPropType = require('deprecatedPropType');
-const keyMirror = require('fbjs/lib/keyMirror');
-const requireNativeComponent = require('requireNativeComponent');
-const resolveAssetSource = require('resolveAssetSource');
+import ReactNative, {
+  EdgeInsetsPropType,
+  StyleSheet,
+  UIManager,
+  View,
+  ViewPropTypes,
+  ActivityIndicator,
+  requireNativeComponent
+} from 'react-native';
+import warning from 'warning';
+import keyMirror from 'keymirror';
+import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
+var PropTypes = require('prop-types');
 
-const RCT_WEBVIEW_REF = 'webview';
+/**
+ * Adds a function for warning Users of deprecated prop use (when something was
+ * valid in previous versions of a component, but not any more).
+ *
+ * In a fit of hilarious irony, the built in React deprecatedPropType used for
+ *  warning users about deprecated PropTypes, has itself been deprecated, and
+ *  this fact is terribly documented (or at least the SEO is subpar), with most
+ *  of the "documentation" found through google being users being caught out by
+ *  this change.
+ *  https://facebook.github.io/react/warnings/dont-call-proptypes.html sort of
+ *  contains a replacement, but not fully documented (e.g. no declaration of
+ *  the 'warned' const). Finding the fix for this was a great experience
+ *  all round, would recommend.
+ */
+const warned = {};
+export default function deprecatedPropType(propType, explanation) {
+  return function validate(props, propName, componentName, ...rest) {
+    // Note ...rest here
+    if (props[propName] != null) {
+      const message = `"${propName}" property of "${componentName}" has been deprecated.\n${explanation}`;
+      if (!warned[message]) {
+        warning(false, message);
+        warned[message] = true;
+      }
+    }
+
+    return propType(props, propName, componentName, ...rest); // and here
+  };
+}
+
+const ADVANCED_WEBVIEW_REF = 'advancedwebview';
 
 const WebViewState = keyMirror({
   IDLE: null,
@@ -42,7 +76,15 @@ const defaultRenderLoading = () => (
 /**
  * Renders a native WebView.
  */
-class WebView extends React.Component {
+class RNAdvancedWebView extends React.Component {
+  static get extraNativeComponentConfig() {
+    return {
+      nativeOnly: {
+        messagingEnabled: PropTypes.bool
+      }
+    };
+  }
+
   static propTypes = {
     ...ViewPropTypes,
     renderError: PropTypes.func,
@@ -129,12 +171,6 @@ class WebView extends React.Component {
     domStorageEnabled: PropTypes.bool,
 
     /**
-     * Sets whether Geolocation is enabled. The default is false.
-     * @platform android
-     */
-    geolocationEnabled: PropTypes.bool,
-
-    /**
      * Sets the JS to be injected when the webpage loads.
      */
     injectedJavaScript: PropTypes.string,
@@ -168,15 +204,6 @@ class WebView extends React.Component {
      * @platform android
      */
     allowUniversalAccessFromFileURLs: PropTypes.bool,
-
-    /**
-     * List of origin strings to allow being navigated to. The strings allow
-     * wildcards and get matched against *just* the origin (not the full URL).
-     * If the user taps to navigate to a new page but the new page is not in
-     * this whitelist, the URL will be opened by the Android OS.
-     * The default whitelisted origins are "http://*" and "https://*".
-     */
-    originWhitelist: PropTypes.arrayOf(PropTypes.string),
 
     /**
      * Function that accepts a string that will be passed to the WebView and
@@ -217,7 +244,7 @@ class WebView extends React.Component {
        */
       props: PropTypes.object,
       /*
-       * Set the ViewManager to use for communication with the native side.
+       * Set the ViewManager to use for communcation with the native side.
        * @platform ios
        */
       viewManager: PropTypes.object
@@ -230,9 +257,10 @@ class WebView extends React.Component {
      * @platform android
      */
     urlPrefixesForDefaultIntent: PropTypes.arrayOf(PropTypes.string),
+
     /*
-     *Custom attribute used on Android only,
-     * Provides support for the browse button to enable upload files
+      *Custom attribute used on Android only,
+      * Provides support for the browse button to enable upload files
       */
     enabledUploadAndroid: PropTypes.bool
   };
@@ -241,8 +269,7 @@ class WebView extends React.Component {
     javaScriptEnabled: true,
     thirdPartyCookiesEnabled: true,
     scalesPageToFit: true,
-    saveFormDataDisabled: false,
-    originWhitelist: WebViewShared.defaultOriginWhitelist
+    saveFormDataDisabled: false
   };
 
   state = {
@@ -251,7 +278,7 @@ class WebView extends React.Component {
     startInLoadingState: true
   };
 
-  UNSAFE_componentWillMount() {
+  componentWillMount() {
     if (this.props.startInLoadingState) {
       this.setState({ viewState: WebViewState.LOADING });
     }
@@ -263,7 +290,7 @@ class WebView extends React.Component {
     if (this.state.viewState === WebViewState.LOADING) {
       otherView = (this.props.renderLoading || defaultRenderLoading)();
     } else if (this.state.viewState === WebViewState.ERROR) {
-      const errorEvent = this.state.lastErrorEvent;
+      let errorEvent = this.state.lastErrorEvent;
       otherView =
         this.props.renderError &&
         this.props.renderError(
@@ -277,7 +304,7 @@ class WebView extends React.Component {
       );
     }
 
-    const webViewStyles = [styles.container, this.props.style];
+    let webViewStyles = [styles.container, this.props.style];
     if (
       this.state.viewState === WebViewState.LOADING ||
       this.state.viewState === WebViewState.ERROR
@@ -286,7 +313,7 @@ class WebView extends React.Component {
       webViewStyles.push(styles.hidden);
     }
 
-    const source = this.props.source || {};
+    let source = this.props.source || {};
     if (this.props.html) {
       source.html = this.props.html;
     } else if (this.props.url) {
@@ -303,15 +330,11 @@ class WebView extends React.Component {
 
     const nativeConfig = this.props.nativeConfig || {};
 
-    const originWhitelist = (this.props.originWhitelist || []).map(
-      WebViewShared.originWhitelistToRegex
-    );
-
     let NativeWebView = nativeConfig.component || RCTWebView;
 
     const webView = (
       <NativeWebView
-        ref={RCT_WEBVIEW_REF}
+        ref={ADVANCED_WEBVIEW_REF}
         key="webViewKey"
         style={webViewStyles}
         source={resolveAssetSource(source)}
@@ -332,14 +355,12 @@ class WebView extends React.Component {
         onLoadingFinish={this.onLoadingFinish}
         onLoadingError={this.onLoadingError}
         testID={this.props.testID}
-        geolocationEnabled={this.props.geolocationEnabled}
         mediaPlaybackRequiresUserAction={
           this.props.mediaPlaybackRequiresUserAction
         }
         allowUniversalAccessFromFileURLs={
           this.props.allowUniversalAccessFromFileURLs
         }
-        originWhitelist={originWhitelist}
         mixedContentMode={this.props.mixedContentMode}
         saveFormDataDisabled={this.props.saveFormDataDisabled}
         urlPrefixesForDefaultIntent={this.props.urlPrefixesForDefaultIntent}
@@ -349,7 +370,7 @@ class WebView extends React.Component {
     );
 
     return (
-      <View style={styles.container}>
+      <View style={{ flex: 1 }}>
         {webView}
         {otherView}
       </View>
@@ -462,7 +483,11 @@ class WebView extends React.Component {
   };
 }
 
-const RCTWebView = requireNativeComponent('RNAdvancedWebview');
+const RCTWebView = requireNativeComponent(
+  'RNAdvancedWebView',
+  RNAdvancedWebView,
+  RNAdvancedWebView.extraNativeComponentConfig
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -482,4 +507,4 @@ const styles = StyleSheet.create({
   }
 });
 
-module.exports = AdvancedWebView;
+module.exports = RNAdvancedWebView;
