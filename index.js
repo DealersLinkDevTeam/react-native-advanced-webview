@@ -1,3 +1,3 @@
-import RNAdvancedWebview from './RNAdvancedWebview';
+import RNAdvancedWebview from './RNAdvancedWebView';
 
 export default RNAdvancedWebview;
