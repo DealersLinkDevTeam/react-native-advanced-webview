@@ -27,7 +27,6 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.common.annotations.VisibleForTesting;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
-import com.reactnativescreens.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
