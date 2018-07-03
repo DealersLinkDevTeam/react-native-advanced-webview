@@ -13,21 +13,19 @@
 // var EdgeInsetsPropType = require('EdgeInsetsPropType');
 // var ActivityIndicator = require('ActivityIndicator');
 // var React = require('React');
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 
 import ReactNative, {
   EdgeInsetsPropType,
   StyleSheet,
   UIManager,
   View,
-  ViewPropTypes,
   ActivityIndicator,
   requireNativeComponent
 } from 'react-native';
 import warning from 'warning';
 import keyMirror from 'keymirror';
 import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
-var PropTypes = require('prop-types');
 
 /**
  * Adds a function for warning Users of deprecated prop use (when something was
@@ -86,7 +84,7 @@ class RNAdvancedWebView extends React.Component {
   }
 
   static propTypes = {
-    ...ViewPropTypes,
+    ...View.propTypes,
     renderError: PropTypes.func,
     renderLoading: PropTypes.func,
     onLoad: PropTypes.func,
@@ -99,8 +97,7 @@ class RNAdvancedWebView extends React.Component {
     onMessage: PropTypes.func,
     onContentSizeChange: PropTypes.func,
     startInLoadingState: PropTypes.bool, // force WebView to show loadingView on first load
-    style: ViewPropTypes.style,
-
+    style: View.propTypes.style,
     html: deprecatedPropType(
       PropTypes.string,
       'Use the `source` prop instead.'
@@ -263,6 +260,11 @@ class RNAdvancedWebView extends React.Component {
       * Provides support for the browse button to enable upload files
       */
     enabledUploadAndroid: PropTypes.bool
+    // accessibilityLabel: PropTypes.string,
+    // renderToHardwareTextureAndroid: PropTypes.bool,
+    // importantForAccessibility: PropTypes.string,
+    // onLayout: PropTypes.bool,
+    // accessibilityLiveRegion: PropTypes.string
   };
 
   static defaultProps = {
