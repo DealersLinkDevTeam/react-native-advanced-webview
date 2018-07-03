@@ -231,6 +231,8 @@ public class RNAdvancedWebviewModule extends ReactContextBaseJavaModule implemen
     public void uploadImage(ValueCallback<Uri[]> filePathCallback){
         mUMA = filePathCallback;
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent galleryIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             File photoFile = null;
             try {
@@ -247,8 +249,7 @@ public class RNAdvancedWebviewModule extends ReactContextBaseJavaModule implemen
                 takePictureIntent = null;
             }
         }
-        Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        // contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        Intent contentSelectionIntent = new Intent(Intent.ACTION_PICK);
         contentSelectionIntent.setType("image/*");
         Intent[] intentArray;
         if (takePictureIntent != null) {
