@@ -45,7 +45,7 @@ public class RNAdvancedWebviewManager extends ReactWebViewManager {
                     mUploadMessage = uploadMsg;
                     Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                     i.addCategory(Intent.CATEGORY_OPENABLE);
-                    i.setType("*/*");
+                    i.setType("image/*");
                     module.getActivity().startActivityForResult(
                             Intent.createChooser(i, "File Browser"),
                             FCR);
