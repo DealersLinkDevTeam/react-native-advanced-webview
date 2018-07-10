@@ -10,9 +10,6 @@
  */
 'use strict';
 
-// var EdgeInsetsPropType = require('EdgeInsetsPropType');
-// var ActivityIndicator = require('ActivityIndicator');
-// var React = require('React');
 import React, { Component, PropTypes } from 'react';
 
 import ReactNative, {
@@ -26,7 +23,6 @@ import ReactNative, {
 import warning from 'warning';
 import keyMirror from 'keymirror';
 import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
-
 /**
  * Adds a function for warning Users of deprecated prop use (when something was
  * valid in previous versions of a component, but not any more).
@@ -260,11 +256,6 @@ class RNAdvancedWebView extends React.Component {
       * Provides support for the browse button to enable upload files
       */
     enabledUploadAndroid: PropTypes.bool
-    // accessibilityLabel: PropTypes.string,
-    // renderToHardwareTextureAndroid: PropTypes.bool,
-    // importantForAccessibility: PropTypes.string,
-    // onLayout: PropTypes.bool,
-    // accessibilityLiveRegion: PropTypes.string
   };
 
   static defaultProps = {
